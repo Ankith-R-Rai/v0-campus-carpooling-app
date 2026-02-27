@@ -4,18 +4,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { ArrowRight, Users, Leaf, TrendingUp, MapPin, Calendar, Users2, Zap, Shield, MessageCircle, BarChart3 } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { User } from '@/lib/types'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Zap } from 'lucide-react'
 
-export default function Landing() {
-  const router = useRouter()
+export default function LoginPage() {
   const { user, setUser } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login')
 
   // Login state
   const [loginEmail, setLoginEmail] = useState('')
@@ -26,11 +26,6 @@ export default function Landing() {
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
   const [signupGender, setSignupGender] = useState<'male' | 'female' | 'other'>('other')
-
-  if (user) {
-    router.push('/dashboard')
-    return null
-  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -113,82 +108,77 @@ export default function Landing() {
     }
   }
 
+  const handleDemoLogin = async (email: string) => {
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const { data: users, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single()
+
+      if (fetchError || !users) {
+        setError('Demo account not found')
+        setIsLoading(false)
+        return
+      }
+
+      const userData: User = users
+      localStorage.setItem('carpoolUser', JSON.stringify(userData))
+      setUser(userData)
+      router.push('/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Login failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (user) {
+    router.push('/dashboard')
+    return null
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur z-50 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Hopper" className="w-10 h-10" />
-            <span className="text-2xl font-bold text-primary">Hopper</span>
-          </div>
-          <div className="hidden md:flex gap-8">
-            <a href="#features" className="text-slate-600 hover:text-primary font-medium">Features</a>
-            <a href="#impact" className="text-slate-600 hover:text-primary font-medium">Impact</a>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-slate-50 flex flex-col">
+      {/* Header */}
+      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+          <img src="/logo.svg" alt="Hopper" className="w-10 h-10" />
+          <h1 className="text-2xl font-bold text-primary">Hopper</h1>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero + Auth Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: Hero Content */}
-          <div>
-            <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-              Cut the Traffic.
-              <br />
-              <span className="text-primary">Share the Vibe.</span>
-            </h1>
-            <p className="text-xl text-slate-600 mb-8 leading-relaxed">
-              Connect with verified peers from your college for safe, affordable rides. Share your journey, reduce emissions, and build community.
-            </p>
-            <div className="flex gap-4 flex-wrap">
-              <button 
-                onClick={() => setActiveTab('signup')}
-                className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center gap-2"
-              >
-                Start Riding <ArrowRight className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={() => setActiveTab('signup')}
-                className="px-8 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition"
-              >
-                Offer a Ride
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Auth Card */}
-          <div>
-            <Card className="p-8 bg-gradient-to-br from-slate-50 to-white border-slate-200">
-              <div className="flex gap-2 mb-6 bg-slate-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTab('login')}
-                  className={`flex-1 py-2 rounded font-semibold transition ${
-                    activeTab === 'login' 
-                      ? 'bg-white text-primary shadow-sm' 
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <Card className="w-full max-w-md shadow-lg">
+          <CardHeader className="text-center border-b border-slate-200">
+            <CardTitle className="text-3xl font-bold text-slate-900">Welcome to Hopper</CardTitle>
+            <CardDescription className="text-base mt-2">Share rides, save money, build community</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100">
+                <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                   Sign In
-                </button>
-                <button
-                  onClick={() => setActiveTab('signup')}
-                  className={`flex-1 py-2 rounded font-semibold transition ${
-                    activeTab === 'signup' 
-                      ? 'bg-white text-primary shadow-sm' 
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Join Now
-                </button>
-              </div>
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
 
-              {activeTab === 'login' ? (
+              {/* Login Tab */}
+              <TabsContent value="login" className="space-y-4">
                 <form onSubmit={handleLogin} className="space-y-4">
-                  {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">{error}</div>}
+                  {error && (
+                    <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+                      {error}
+                    </div>
+                  )}
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-2">Email</label>
+                    <label className="text-sm font-semibold text-slate-700 block mb-2">Email Address</label>
                     <Input
                       type="email"
                       placeholder="you@college.edu"
@@ -209,18 +199,62 @@ export default function Landing() {
                       className="bg-white"
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2.5" 
+                    disabled={isLoading}
+                  >
                     {isLoading ? 'Signing in...' : 'Sign In'}
                   </Button>
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm border border-blue-200">
-                    <p className="font-semibold text-blue-900 mb-2">Demo Accounts:</p>
-                    <p className="text-xs text-blue-800 mb-1"><strong>Driver:</strong> alex.johnson@college.edu</p>
-                    <p className="text-xs text-blue-800"><strong>Rider:</strong> emma.wilson@college.edu</p>
-                  </div>
                 </form>
-              ) : (
+
+                {/* Quick Demo Login */}
+                <div className="mt-6 space-y-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-slate-500 font-medium">Quick Demo</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handleDemoLogin('alex.johnson@college.edu')}
+                      disabled={isLoading}
+                      className="p-3 bg-primary/10 hover:bg-primary/20 text-primary font-semibold rounded-lg transition border border-primary/30 disabled:opacity-50"
+                    >
+                      <div className="text-xs">Driver Demo</div>
+                      <div className="text-xs opacity-70">Alex Johnson</div>
+                    </button>
+                    <button
+                      onClick={() => handleDemoLogin('emma.wilson@college.edu')}
+                      disabled={isLoading}
+                      className="p-3 bg-primary/10 hover:bg-primary/20 text-primary font-semibold rounded-lg transition border border-primary/30 disabled:opacity-50"
+                    >
+                      <div className="text-xs">Rider Demo</div>
+                      <div className="text-xs opacity-70">Emma Wilson</div>
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-800">
+                    <div className="font-semibold mb-1 flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> Fast Demo Login
+                    </div>
+                    Click either demo account to instantly explore Hopper as a driver or rider.
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Sign Up Tab */}
+              <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignup} className="space-y-4">
-                  {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">{error}</div>}
+                  {error && (
+                    <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+                      {error}
+                    </div>
+                  )}
                   <div>
                     <label className="text-sm font-semibold text-slate-700 block mb-2">Full Name</label>
                     <Input
@@ -258,249 +292,35 @@ export default function Landing() {
                     <select
                       value={signupGender}
                       onChange={(e) => setSignupGender(e.target.value as any)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-white"
                     >
                       <option value="other">Prefer not to say</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                     </select>
                   </div>
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2.5" 
+                    disabled={isLoading}
+                  >
                     {isLoading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </form>
-              )}
-            </Card>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-primary/5">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-6">
-            <Card className="p-6 bg-white text-center">
-              <div className="text-3xl font-bold text-primary mb-2">1.3K kg</div>
-              <div className="text-sm text-slate-600">CO₂ Emissions Saved</div>
-            </Card>
-            <Card className="p-6 bg-white text-center">
-              <div className="text-3xl font-bold text-primary mb-2">10k+</div>
-              <div className="text-sm text-slate-600">Rides Completed</div>
-            </Card>
-            <Card className="p-6 bg-white text-center">
-              <div className="text-3xl font-bold text-primary mb-2">100%</div>
-              <div className="text-sm text-slate-600">Verified Users</div>
-            </Card>
-            <Card className="p-6 bg-white text-center">
-              <div className="text-3xl font-bold text-primary mb-2">4.8★</div>
-              <div className="text-sm text-slate-600">Average Rating</div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Find Your Ride Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-slate-900">Find Your Ride in Seconds</h2>
-          
-          <Card className="p-6 mb-8 bg-white">
-            <div className="grid md:grid-cols-4 gap-4 mb-8">
-              <div>
-                <label className="text-sm font-semibold text-slate-700 block mb-2">From</label>
-                <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-lg border border-slate-200">
-                  <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                  <input type="text" placeholder="Pickup location" className="bg-transparent outline-none flex-1 text-sm" />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-slate-700 block mb-2">To</label>
-                <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-lg border border-slate-200">
-                  <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                  <input type="text" placeholder="Campus" className="bg-transparent outline-none flex-1 text-sm" />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-slate-700 block mb-2">When</label>
-                <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-lg border border-slate-200">
-                  <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                  <input type="date" className="bg-transparent outline-none flex-1 text-sm" />
-                </div>
-              </div>
-              <div className="flex items-end">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white">Search Rides</Button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-700">Available Rides</h3>
-              {[
-                { driver: 'Rahul K.', rating: 4.9, car: 'Honda City', seats: 2, price: '₹60' },
-                { driver: 'Priya S.', rating: 4.8, car: 'Hyundai i20', seats: 3, price: '₹45', femaleOnly: true },
-                { driver: 'Aditya M.', rating: 4.7, car: 'Maruti Swift', seats: 1, price: '₹50' },
-              ].map((ride, i) => (
-                <Card key={i} className="p-4 flex items-center justify-between hover:shadow-md transition-shadow bg-slate-50 border-slate-200">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Users2 className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900">{ride.driver}</span>
-                        {ride.femaleOnly && <Shield className="w-4 h-4 text-pink-500" />}
-                      </div>
-                      <div className="text-sm text-slate-500">{ride.car} • ⭐ {ride.rating}</div>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-semibold text-primary mb-1">{ride.price}</div>
-                    <div className="text-sm text-slate-500">{ride.seats} seats left</div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Impact Dashboard */}
-      <section id="impact" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-slate-900">Your Impact Dashboard</h2>
-          
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Card className="p-8 bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-sm text-amber-700 font-semibold mb-2">Energy Saved</div>
-                  <div className="text-4xl font-bold text-amber-900">42 kWh</div>
-                </div>
-                <Zap className="w-12 h-12 text-amber-600 opacity-20" />
-              </div>
-            </Card>
-            <Card className="p-8 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-sm text-green-700 font-semibold mb-2">CO₂ Reduction</div>
-                  <div className="text-4xl font-bold text-green-900">156 kg</div>
-                </div>
-                <Leaf className="w-12 h-12 text-green-600 opacity-20" />
-              </div>
-            </Card>
-            <Card className="p-8 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-sm text-blue-700 font-semibold mb-2">Money Saved</div>
-                  <div className="text-4xl font-bold text-blue-900">₹4.5K</div>
-                </div>
-                <TrendingUp className="w-12 h-12 text-blue-600 opacity-20" />
-              </div>
-            </Card>
-          </div>
-
-          <Card className="p-8 bg-slate-900">
-            <div className="text-white">
-              <h3 className="text-2xl font-bold mb-4">Track Your Impact</h3>
-              <p className="text-slate-300 mb-6">Every ride contributes to a greener campus. Together we're building a sustainable future.</p>
-              <div className="bg-slate-800/50 p-6 rounded-lg">
-                <div className="h-32 bg-gradient-to-r from-primary/20 to-primary/5 rounded flex items-end justify-center p-4 gap-1">
-                  {[...Array(12)].map((_, i) => (
-                    <div key={i} className="flex-1 h-20 bg-primary/40 rounded-t" style={{ height: `${Math.random() * 100 + 20}%` }} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 text-slate-900">Why Choose Hopper?</h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Users, title: 'Verified Community', desc: 'All members verified through college email. Safe rides with trusted peers.' },
-              { icon: MapPin, title: 'Real-Time Tracking', desc: 'Know exactly where your driver is. Share live location for safety.' },
-              { icon: Leaf, title: 'Eco-Friendly', desc: 'Every shared ride reduces emissions. Track your environmental impact.' },
-              { icon: TrendingUp, title: 'Save Money', desc: 'Split costs with other riders. Drivers earn extra income.' },
-              { icon: Zap, title: 'Instant Booking', desc: 'Find and book rides in seconds. Pay via wallet or card.' },
-              { icon: MessageCircle, title: 'In-Ride Chat', desc: 'Message drivers and riders before and during your trip.' },
-            ].map((feature, i) => {
-              const Icon = feature.icon
-              return (
-                <Card key={i} className="p-6 hover:shadow-lg hover:border-primary/30 transition-all">
-                  <div className="text-primary mb-4"><Icon className="w-8 h-8" /></div>
-                  <h3 className="font-semibold text-lg mb-2 text-slate-900">{feature.title}</h3>
-                  <p className="text-slate-600">{feature.desc}</p>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-primary/10">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6 text-slate-900">Ready to Hop On?</h2>
-          <p className="text-xl text-slate-600 mb-8">Join thousands of students sharing smarter, safer rides.</p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <button 
-              onClick={() => setActiveTab('signup')}
-              className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center gap-2"
-            >
-              Get Started <ArrowRight className="w-5 h-5" />
-            </button>
-            <button 
-              className="px-8 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition"
-            >
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
+                <p className="text-xs text-center text-slate-600 mt-4">
+                  By signing up, you agree to our Terms & Conditions and Privacy Policy
+                </p>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <img src="/logo.svg" alt="Hopper" className="w-8 h-8" />
-                <span className="font-bold">Hopper</span>
-              </div>
-              <p className="text-slate-400 text-sm">Making campus commutes smarter and greener.</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-slate-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">For Riders</a></li>
-                <li><a href="#" className="hover:text-white transition">For Drivers</a></li>
-                <li><a href="#" className="hover:text-white transition">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-slate-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">About</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-slate-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition">Safety</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-            <p>&copy; 2024 Hopper. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-slate-200 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-slate-600">
+          <p>&copy; 2024 Hopper. Making campus commutes smarter and greener.</p>
         </div>
       </footer>
     </div>
