@@ -10,20 +10,20 @@ VALUES
 -- Seed demo rides
 INSERT INTO rides (id, driver_id, start_location, destination, date_time, seats_total, seats_available, female_only, vibe, status)
 VALUES
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'Main Library', 'Campus', '2026-02-27 08:30:00', 3, 2, false, 'Music', 'scheduled'),
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'Downtown Station', 'Campus', '2026-02-27 09:00:00', 2, 2, true, 'Networking', 'scheduled'),
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5c'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5c'::uuid, 'North Parking', 'Campus', '2026-02-27 10:15:00', 4, 3, false, 'Silent', 'scheduled'),
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'West Avenue', 'Campus', '2026-02-27 14:00:00', 3, 1, false, 'Music', 'scheduled'),
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5e'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'Student Center', 'Campus', '2026-02-27 16:30:00', 2, 1, true, 'Silent', 'scheduled');
+  ('a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'Main Library', 'Campus', '2026-02-27 08:30:00', 3, 2, false, 'Music', 'scheduled'),
+  ('b1c2d3e4-f5a6-48b9-c0d1-e2f3a4b5c6d7'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'Downtown Station', 'Campus', '2026-02-27 09:00:00', 2, 2, true, 'Networking', 'scheduled'),
+  ('c1d2e3f4-a5b6-49ca-d1e2-f3a4b5c6d7e8'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5c'::uuid, 'North Parking', 'Campus', '2026-02-27 10:15:00', 4, 3, false, 'Silent', 'scheduled'),
+  ('d1e2f3a4-b5c6-4adb-e2f3-a4b5c6d7e8f9'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'West Avenue', 'Campus', '2026-02-27 14:00:00', 3, 1, false, 'Music', 'scheduled'),
+  ('e1f2a3b4-c5d6-4bec-f3a4-b5c6d7e8f9a0'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'Student Center', 'Campus', '2026-02-27 16:30:00', 2, 1, true, 'Silent', 'scheduled');
 
 -- Seed sample bookings
 INSERT INTO bookings (ride_id, rider_id, seats_booked, status)
 VALUES
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 1, 'approved'),
-  ('r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5b'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 1, 'pending');
+  ('a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 1, 'approved'),
+  ('b1c2d3e4-f5a6-48b9-c0d1-e2f3a4b5c6d7'::uuid, 'd5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 1, 'pending');
 
 -- Seed sample transactions
 INSERT INTO transactions (user_id, amount, type, ride_id, description)
 VALUES
-  ('d5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 50.00, 'credit', 'r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'Ride completion bonus'),
-  ('d5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 8.50, 'debit', 'r1a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 'Ride payment');
+  ('d5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5a'::uuid, 50.00, 'credit', 'a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6'::uuid, 'Ride completion bonus'),
+  ('d5a7e1a0-1b2c-4d5e-8f9a-0b1c2d3e4f5d'::uuid, 8.50, 'debit', 'a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6'::uuid, 'Ride payment');
