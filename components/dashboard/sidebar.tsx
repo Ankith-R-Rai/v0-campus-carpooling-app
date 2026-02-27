@@ -55,11 +55,14 @@ export function Sidebar() {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 transition-transform fixed lg:relative w-64 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border z-30 flex flex-col`}
       >
-        <div className="p-6 border-b border-sidebar-border">
-          <h1 className="text-2xl font-bold">CampusCarpool</h1>
-          <p className="text-xs text-sidebar-foreground/60 mt-1">
-            {isDriver ? 'Driver Mode' : 'Rider Mode'}
-          </p>
+        <div className="p-6 border-b border-sidebar-border flex items-center gap-3">
+          <img src="/logo.svg" alt="Hopper" className="w-8 h-8" />
+          <div>
+            <h1 className="text-2xl font-bold">Hopper</h1>
+            <p className="text-xs text-sidebar-foreground/60">
+              {isDriver ? 'Driver Mode' : 'Rider Mode'}
+            </p>
+          </div>
         </div>
 
         {/* User Info Card */}
