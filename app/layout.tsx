@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Hopper - Cut the Traffic. Share the Vibe.',
-  description: 'Campus carpooling made easy. Share rides, save money, and build community.',
+  title: 'CampusCarpool - Share Rides, Save Money',
+  description: 'A campus carpooling app for students to share rides safely',
   generator: 'v0.app',
   icons: {
     icon: [
