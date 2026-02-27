@@ -33,25 +33,36 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      console.log('[v0] Login attempt with email:', loginEmail)
       const { data: users, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('email', loginEmail)
-        .single()
 
-      if (fetchError || !users) {
+      console.log('[v0] Query error:', fetchError)
+      console.log('[v0] Users found:', users)
+
+      if (fetchError) {
+        console.error('[v0] Supabase error:', fetchError)
+        setError('Database error: ' + fetchError.message)
+        setIsLoading(false)
+        return
+      }
+
+      if (!users || users.length === 0) {
         setError('Invalid email or password')
         setIsLoading(false)
         return
       }
 
-      const userData: User = users
+      const userData: User = users[0]
+      console.log('[v0] Login successful for user:', userData.name)
       localStorage.setItem('carpoolUser', JSON.stringify(userData))
       setUser(userData)
       router.push('/dashboard')
     } catch (err: any) {
+      console.error('[v0] Login error:', err)
       setError(err.message || 'Login failed')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -62,18 +73,28 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const { data: existing } = await supabase
+      console.log('[v0] Signup attempt with email:', signupEmail)
+
+      // Check if email already exists
+      const { data: existing, error: checkError } = await supabase
         .from('users')
         .select('id')
         .eq('email', signupEmail)
-        .single()
 
-      if (existing) {
+      if (checkError) {
+        console.error('[v0] Check error:', checkError)
+        setError('Database error: ' + checkError.message)
+        setIsLoading(false)
+        return
+      }
+
+      if (existing && existing.length > 0) {
         setError('Email already registered')
         setIsLoading(false)
         return
       }
 
+      // Create new user
       const { data: newUser, error: insertError } = await supabase
         .from('users')
         .insert([
@@ -89,21 +110,31 @@ export default function LoginPage() {
           },
         ])
         .select()
-        .single()
 
-      if (insertError || !newUser) {
+      console.log('[v0] Insert error:', insertError)
+      console.log('[v0] New user:', newUser)
+
+      if (insertError) {
+        console.error('[v0] Insert error details:', insertError)
+        setError('Failed to create account: ' + insertError.message)
+        setIsLoading(false)
+        return
+      }
+
+      if (!newUser || newUser.length === 0) {
         setError('Failed to create account')
         setIsLoading(false)
         return
       }
 
-      const userData: User = newUser
+      const userData: User = newUser[0]
+      console.log('[v0] Signup successful for user:', userData.name)
       localStorage.setItem('carpoolUser', JSON.stringify(userData))
       setUser(userData)
       router.push('/dashboard')
     } catch (err: any) {
+      console.error('[v0] Signup error:', err)
       setError(err.message || 'Sign up failed')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -113,25 +144,36 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      console.log('[v0] Demo login attempt with email:', email)
       const { data: users, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('email', email)
-        .single()
 
-      if (fetchError || !users) {
+      console.log('[v0] Query error:', fetchError)
+      console.log('[v0] Demo users found:', users)
+
+      if (fetchError) {
+        console.error('[v0] Supabase error:', fetchError)
+        setError('Error: ' + fetchError.message)
+        setIsLoading(false)
+        return
+      }
+
+      if (!users || users.length === 0) {
         setError('Demo account not found')
         setIsLoading(false)
         return
       }
 
-      const userData: User = users
+      const userData: User = users[0]
+      console.log('[v0] Demo login successful for user:', userData.name)
       localStorage.setItem('carpoolUser', JSON.stringify(userData))
       setUser(userData)
       router.push('/dashboard')
     } catch (err: any) {
+      console.error('[v0] Demo login error:', err)
       setError(err.message || 'Login failed')
-    } finally {
       setIsLoading(false)
     }
   }
